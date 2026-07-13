@@ -1,5 +1,21 @@
 # Govee to MQTT bridge for Home Assistant
 
+## Anas Quickstart
+
+This fork was set up as `zephy2turnt/govee-light-control` so you have a ready
+starter repo for controlling Govee light strips through MQTT, Home Assistant,
+the Govee LAN API, and the Govee cloud API where needed.
+
+Start here:
+
+1. Copy `.env.example` to `.env`.
+2. Put your Govee email/password and optional Govee API key in `.env`.
+3. Enable LAN control for each supported strip in the Govee Home app.
+4. Run `docker compose up -d`.
+5. Follow `STARTER.md` for finding MQTT topics and sending on/off/color commands.
+
+Do not commit your real `.env`; it contains secrets.
+
 This repo provides a `govee` executable whose primary purpose is to act
 as a bridge between [Govee](https://govee.com) devices and Home Assistant,
 via the [Home Assistant MQTT Integration](https://www.home-assistant.io/integrations/mqtt/).
@@ -60,4 +76,3 @@ Control](https://github.com/wez/govee-lan-hass/).
 
 The AWS IoT support was made possible by the work of @bwp91 in
 [homebridge-govee](https://github.com/bwp91/homebridge-govee/).
-
