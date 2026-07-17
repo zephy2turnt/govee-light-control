@@ -1,18 +1,82 @@
 # Govee to MQTT bridge for Home Assistant
 
-## Anas Quickstart
+## Anas Quickstart: Study and Sleep Modes
 
 This fork was set up as `zephy2turnt/govee-light-control` so you have a ready
 starter repo for controlling Govee light strips through MQTT, Home Assistant,
 the Govee LAN API, and the Govee cloud API where needed.
 
-Start here:
+The easiest option is the beginner-friendly `govee_control.py` script. It uses
+only Python's built-in modules and sends commands directly to the strip at its
+current local IP address, `10.0.0.86`.
+
+### Run it
+
+1. In the Govee Home app, open the H61B5 strip's settings and enable **LAN Control**.
+2. Make sure the computer and strip are connected to the same home network.
+3. Open Terminal in this repository.
+4. Run one of these commands:
+
+```bash
+python3 govee_control.py study
+python3 govee_control.py sleep
+```
+
+- `study` turns the strip on, chooses warm white at 2700 K, and sets brightness to 68%.
+- `sleep` turns the strip on, chooses the same warm white, and sets brightness to 3%.
+- There are intentionally no music-reactive or color-cycling modes.
+
+To safely preview the exact LAN messages without changing the light:
+
+```bash
+python3 govee_control.py study --dry-run
+```
+
+### Network ports
+
+The Govee LAN API uses UDP, not TCP:
+
+- UDP `4001`: the strip listens for discovery requests.
+- UDP `4002`: the computer listens for discovery and status replies.
+- UDP `4003`: the strip listens for power, color-temperature, brightness, and status commands.
+
+Allow local UDP traffic on these ports if a firewall blocks the script. Guest
+Wi-Fi or router "client isolation" can prevent devices from talking to each
+other even when they appear to be on the same Wi-Fi network.
+
+### If the strip's IP address changes
+
+The script currently defaults to `10.0.0.86`. If that stops working:
+
+1. Run `python3 scripts/govee_lan.py discover` to list LAN-enabled Govee devices.
+2. Find the row with model/SKU `H61B5` and copy its new IP address.
+3. Test it without editing code:
+
+```bash
+python3 govee_control.py study --ip NEW_IP_ADDRESS --dry-run
+python3 govee_control.py study --ip NEW_IP_ADDRESS
+```
+
+4. For a permanent update, change `DEFAULT_DEVICE_IP` near the top of
+   `govee_control.py`, or set an environment variable before running it:
+
+```bash
+export GOVEE_DEVICE_IP=NEW_IP_ADDRESS
+python3 govee_control.py study
+```
+
+Reserving the strip's IP address in the router's DHCP settings is the best way
+to keep it from changing again.
+
+### Optional full bridge setup
+
+This repository also contains the larger MQTT/Home Assistant bridge. To use it:
 
 1. Copy `.env.example` to `.env`.
-2. Put your Govee email/password and optional Govee API key in `.env`.
-3. Enable LAN control for each supported strip in the Govee Home app.
-4. Run `docker compose up -d`.
-5. Follow `STARTER.md` for finding MQTT topics and sending on/off/color commands.
+2. For Anas's H61B5, leave the model setting as `GOVEE_TARGET_MODEL=H61B5`.
+3. Enable LAN control for the strip in the Govee Home app.
+4. Run `python3 scripts/govee_lan.py discover` for key-free local discovery.
+5. Follow `STARTER.md` for direct commands or the optional MQTT/Home Assistant bridge.
 
 Do not commit your real `.env`; it contains secrets.
 
