@@ -26,18 +26,27 @@ Rain** event makes mutations 4× more likely for 60s.
 Progress saves to a DataStore: cash, seeds, brainrots, and growing plants.
 Plants keep growing while you're offline.
 
-## Project layout
+## Project layout (where each script goes in Studio)
 
-```
-src/shared/Config.luau          all tuning: seeds, creatures, prices, timers
-src/server/init.server.luau     game logic (planting, stealing, bonking, income, saving)
-src/server/MapBuilder.luau      builds the map and the 6 plots
-src/server/Visuals.luau         procedural brainrot and plant models
-src/server/DataService.luau     DataStore load and save
-src/client/init.client.luau     UI: cash, seed hotbar, shop, toasts, prompt filtering
-```
+Rojo places these automatically. If you copy them by hand, use the same layout.
 
-To add a brainrot or a seed, add an entry in `Config.luau`. No other code changes are needed.
+**ReplicatedStorage > Shared** (Folder; ModuleScripts used by both sides)
+- `Theme`: the design system (colours, fonts, radii, tweens, sound IDs, rarity colours)
+- `Config`: gameplay tuning (seeds, creatures, prices, timers)
+
+**ServerScriptService > Server** (Script, with ModuleScripts inside it)
+- `Server` (`init.server.luau`): game logic plus every RemoteEvent, all validated on the server
+- `MapBuilder`, `Visuals`: build the world and models
+- `DataService`: DataStore load/save, including validated player settings
+
+**StarterPlayer > StarterPlayerScripts > Client** (LocalScript, with these inside it)
+- `Client` (`init.client.luau`): bootstrap; shows the menu, then starts gameplay on Play
+- `UI/`: `Components` (buttons, panels, sliders), `Motion` (animations), `Sound`, `Responsive` (scaling for PC/phone/tablet)
+- `Systems/`: `SettingsController`, `Graphics` (quality levels), `MenuCamera`
+- `Screens/`: `MainMenu`, `SettingsScreen`
+- `Hud`: the in-game HUD (the prototype HUD; it gets rebuilt on the design system next)
+
+To restyle the whole game, edit the values in `src/shared/Theme.luau`.
 
 ## Running it
 

@@ -4,18 +4,22 @@
 
 local DataStoreService = game:GetService("DataStoreService")
 
-local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
+local Shared = game:GetService("ReplicatedStorage").Shared
+local Config = require(Shared.Config)
+local Theme = require(Shared.Theme)
 
 local DataService = {}
 
 export type CreatureSave = { id: string, mutation: string? }
 export type PlantSave = { seed: string, plantedAt: number }
+export type Settings = { music: number, sfx: number, quality: string }
 export type Data = {
 	cash: number,
 	seeds: { [string]: number },
 	-- Keyed by tostring(index): DataStores can't store sparse number-keyed arrays.
 	plants: { [string]: PlantSave },
 	creatures: { [string]: CreatureSave },
+	settings: Settings,
 }
 
 local store: DataStore? = nil
@@ -36,7 +40,28 @@ local function defaultData(): Data
 		seeds = table.clone(Config.StartingSeeds),
 		plants = {},
 		creatures = {},
+		settings = table.clone(Theme.DefaultSettings),
 	}
+end
+
+-- Validates settings from a save or from the client. Anything malformed
+-- falls back to the default, so a bad value can never break a profile.
+function DataService.sanitizeSettings(raw: any): Settings
+	local defaults = Theme.DefaultSettings
+	local settings = table.clone(defaults)
+	if type(raw) ~= "table" then
+		return settings
+	end
+	for _, key in { "music", "sfx" } do
+		local v = raw[key]
+		if type(v) == "number" and v == v then -- v == v rejects NaN
+			settings[key] = math.clamp(v, 0, 1)
+		end
+	end
+	if type(raw.quality) == "string" and table.find(Theme.QualityLevels, raw.quality) then
+		settings.quality = raw.quality
+	end
+	return settings
 end
 
 -- Drops anything that no longer exists in Config (renamed seeds, etc).
@@ -72,6 +97,7 @@ local function sanitize(raw: any): Data
 			end
 		end
 	end
+	data.settings = DataService.sanitizeSettings(raw.settings)
 	return data
 end
 

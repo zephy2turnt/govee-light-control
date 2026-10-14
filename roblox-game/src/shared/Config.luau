@@ -27,14 +27,8 @@ Config.WeatherInterval = 300
 Config.WeatherDuration = 60
 Config.WeatherMutationBoost = 4
 
-Config.Rarities = {
-	Common = { order = 1, color = Color3.fromRGB(190, 190, 190) },
-	Rare = { order = 2, color = Color3.fromRGB(70, 140, 255) },
-	Epic = { order = 3, color = Color3.fromRGB(170, 80, 255) },
-	Legendary = { order = 4, color = Color3.fromRGB(255, 170, 0) },
-	Mythic = { order = 5, color = Color3.fromRGB(255, 50, 90) },
-	Secret = { order = 6, color = Color3.fromRGB(20, 20, 20) },
-}
+-- Rarity colours live in Theme so the UI and the world always agree.
+Config.Rarities = require(script.Parent.Theme).Rarity
 
 export type CreatureDef = {
 	name: string,

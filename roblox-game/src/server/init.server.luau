@@ -56,6 +56,10 @@ local SelectSeed = remote("SelectSeed") -- client -> server (seedId)
 local Notify = remote("Notify") -- server -> client (text, color)
 local OpenShop = remote("OpenShop") -- server -> client
 local Knockback = remote("Knockback") -- server -> client (velocity)
+local SaveSettings = remote("SaveSettings") -- client -> server (settings table)
+local GetSettings = Instance.new("RemoteFunction") -- client -> server, returns settings
+GetSettings.Name = "GetSettings"
+GetSettings.Parent = remotes
 remotes.Parent = ReplicatedStorage
 
 -- World --------------------------------------------------------------------
@@ -809,6 +813,37 @@ SelectSeed.OnServerEvent:Connect(function(player, seedId)
 	end
 	state.selectedSeed = seedId
 	syncSeeds(state)
+end)
+
+-- Settings remotes ------------------------------------------------------------
+
+-- Waits (up to 20s) for the player's profile, since the client asks for its
+-- settings as soon as it starts, often before the DataStore load finishes.
+GetSettings.OnServerInvoke = function(player)
+	local waited = 0
+	while not states[player] and player.Parent and waited < 20 do
+		waited += task.wait(0.25)
+	end
+	local state = states[player]
+	return if state then table.clone(state.data.settings) else nil
+end
+
+local lastSettingsSave: { [Player]: number } = {}
+SaveSettings.OnServerEvent:Connect(function(player, raw)
+	local state = states[player]
+	if not state then
+		return
+	end
+	-- Rate limit so a spammed remote can't hammer the server.
+	local now = os.clock()
+	if now - (lastSettingsSave[player] or 0) < 0.5 then
+		return
+	end
+	lastSettingsSave[player] = now
+	state.data.settings = DataService.sanitizeSettings(raw)
+end)
+Players.PlayerRemoving:Connect(function(player)
+	lastSettingsSave[player] = nil
 end)
 
 -- Loops -------------------------------------------------------------------------
