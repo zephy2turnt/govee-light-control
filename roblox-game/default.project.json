@@ -5,6 +5,15 @@
     "ReplicatedStorage": {
       "Shared": {
         "$path": "src/shared"
+      },
+      "Packages": {
+        "$className": "Folder",
+        "Obsidian": {
+          "$path": "vendor/obsidian/Library.lua"
+        },
+        "LucideIcons": {
+          "$path": "vendor/lucide/LucideIcons.lua"
+        }
       }
     },
     "ServerScriptService": {
