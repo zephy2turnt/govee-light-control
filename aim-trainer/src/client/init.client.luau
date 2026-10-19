@@ -17,6 +17,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local StarterGui = game:GetService("StarterGui")
+local TextChatService = game:GetService("TextChatService")
 local Workspace = game:GetService("Workspace")
 
 local Modes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Modes"))
@@ -36,10 +37,30 @@ local GetProfile = remotes:WaitForChild("GetProfile") :: RemoteFunction
 local StartRound = remotes:WaitForChild("StartRound") :: RemoteFunction
 local SubmitResult = remotes:WaitForChild("SubmitResult") :: RemoteFunction
 
--- An aim trainer doesn't need these.
-for _, coreGui in { Enum.CoreGuiType.Backpack, Enum.CoreGuiType.Health } do
-	pcall(StarterGui.SetCoreGuiEnabled, StarterGui, coreGui, false)
+-- Hide all of Roblox's own UI: chat, player list, backpack, health, emotes,
+-- and the top bar. Only the Roblox menu button stays (Roblox always shows it).
+pcall(StarterGui.SetCoreGuiEnabled, StarterGui, Enum.CoreGuiType.All, false)
+local chatWindow = TextChatService:FindFirstChildOfClass("ChatWindowConfiguration")
+local chatInput = TextChatService:FindFirstChildOfClass("ChatInputBarConfiguration")
+local bubbles = TextChatService:FindFirstChildOfClass("BubbleChatConfiguration")
+for _, config in { chatWindow, chatInput, bubbles } do
+	if config then
+		(config :: any).Enabled = false
+	end
 end
+task.spawn(function()
+	-- SetCore isn't ready the moment the game starts, so keep trying briefly.
+	for _ = 1, 20 do
+		local ok = pcall(function()
+			StarterGui:SetCore("TopbarEnabled", false)
+			StarterGui:SetCore("ResetButtonCallback", false)
+		end)
+		if ok then
+			break
+		end
+		task.wait(0.5)
+	end
+end)
 task.spawn(function()
 	local ok, playerModule = pcall(function()
 		return require(player:WaitForChild("PlayerScripts"):WaitForChild("PlayerModule") :: ModuleScript)

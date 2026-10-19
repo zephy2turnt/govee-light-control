@@ -35,6 +35,12 @@ pay. Tracking scores the percentage of time on target, out of 10,000.
 A live preview updates as you change things. Everything is saved to your
 profile.
 
+## Roblox UI
+
+The game hides all of Roblox's own UI: chat, chat bubbles, the player list,
+backpack, health bar, emotes and the reset button. Only the Roblox menu
+button in the top-left corner stays, because Roblox always shows it.
+
 ## Saving and anti-cheat
 
 Targets and hit detection run on the client, so shooting is instant. The
