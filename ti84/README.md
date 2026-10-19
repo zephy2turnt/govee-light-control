@@ -1,6 +1,6 @@
 # VECTOR: vector calculator for the TI-84 Plus CE
 
-A TI-BASIC program that adds and subtracts vectors and splits them into components, in **2D or 3D**.
+A TI-BASIC program that adds, subtracts, dots and crosses vectors and splits them into components, in **2D or 3D**.
 
 ## Install
 
@@ -19,8 +19,10 @@ After editing `VECTOR.txt`, rebuild with `pip install tivars && python3 build.py
 | SUBTRACT A-B | Works out vector A minus vector B |
 | SPLIT TO X,Y,Z | Turns a magnitude and angle(s) into components |
 | X,Y,Z TO MAG/DIR | Turns components into a magnitude and direction |
+| DOT PRODUCT | Works out A·B and the angle between A and B |
+| CROSS PRODUCT | Works out A×B (always 3D, so enter z=0 for flat vectors), with its magnitude and direction |
 
-After you pick an option, choose **2D** or **3D**. For add and subtract, also choose
+After you pick an option, choose **2D** or **3D** (cross product skips this step). For add, subtract, dot and cross, also choose
 whether you'll enter each vector as **magnitude + angle(s)** or as **components**.
 
 ## Angle conventions (degrees)
@@ -41,9 +43,12 @@ Compass bearings (like N30°E) need converting first. The angle from +x (east) i
 Add (3, 4, 0) and (1, 1, 1) in 3D using components. The result should be X=4, Y=5, Z=1,
 MAG≈6.4807, θ≈51.34, Φ≈81.12.
 
+Dot product of (1, 2, 3) and (4, ⁻5, 6) gives A·B = 12 and an angle of ≈ 68.56°.
+Their cross product is (27, 6, ⁻13).
+
 ## Notes
 
 - The program switches the calculator to **Degree** mode and overwrites the real
-  variables A, B, D, F, K, M, N, O, P, T, U, V, W, X, Y, Z.
+  variables A, B, D, E, F, G, H, K, M, N, O, P, S, T, U, V, W, X, Y, Z.
 - Results are rounded to 8 decimal places, so tiny errors like 1E-13 show as 0.
 - A zero vector has no direction, so its angles are shown as 0.

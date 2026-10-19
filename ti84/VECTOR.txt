@@ -2,7 +2,7 @@ Degree
 Float
 Lbl M
 ClrHome
-Menu("VECTOR TOOLS","ADD VECTORS",A,"SUBTRACT A-B",S,"SPLIT TO X,Y,Z",C,"X,Y,Z TO MAG/DIR",P,"QUIT",Q
+Menu("VECTOR TOOLS","ADD VECTORS",A,"SUBTRACT A-B",S,"SPLIT TO X,Y,Z",C,"X,Y,Z TO MAG/DIR",P,"DOT PRODUCT",DT,"CROSS PRODUCT",CR,"QUIT",Q
 Lbl A
 1→O
 Goto D
@@ -14,6 +14,14 @@ Lbl C
 Goto D
 Lbl P
 4→O
+Goto D
+Lbl DT
+5→O
+Goto D
+Lbl CR
+6→O
+3→D
+Goto F
 Lbl D
 Menu("DIMENSION","2D (X,Y)",D2,"3D (X,Y,Z)",D3
 Lbl D2
@@ -28,7 +36,7 @@ Goto G
 If O=4
 Goto H
 2→N
-If O=2
+If O≠1
 Goto J
 ClrHome
 Repeat N≥2
@@ -50,11 +58,13 @@ For(K,1,N)
 ClrHome
 If O=1
 Disp "VECTOR",K
-If O=2 and K=1
+If (O=2 or O≥5) and K=1
 Disp "VECTOR A"
 If O=2 and K=2
 Disp "VECTOR B (SUBTRACTED)"
-If O≥3
+If O≥5 and K=2
+Disp "VECTOR B"
+If O=3 or O=4
 Disp "ENTER VECTOR"
 0→W
 If F=1
@@ -85,9 +95,23 @@ Then
 ⁻V→V
 ⁻W→W
 End
+If O≥5 and K=1
+Then
+U→E
+V→G
+W→H
+End
 X+U→X
 Y+V→Y
 Z+W→Z
+End
+If O=5
+Goto DP
+If O=6
+Then
+G*W-H*V→X
+H*U-E*W→Y
+E*V-G*U→Z
 End
 round(X,8)→X
 round(Y,8)→Y
@@ -121,6 +145,8 @@ If O=3
 Output(1,1,"COMPONENTS")
 If O=4
 Output(1,1,"MAGNITUDE + DIRECTION")
+If O=6
+Output(1,1,"CROSS PRODUCT A X B")
 Output(2,1,"X=")
 Output(2,9,X)
 Output(3,1,"Y=")
@@ -145,6 +171,22 @@ Output(8,9,A)
 Output(9,1,"ANG +Y=")
 Output(9,9,B)
 End
+Pause 
+Goto M
+Lbl DP
+E*U+G*V+H*W→S
+√(E²+G²+H²)*√(U²+V²+W²)→M
+0→T
+If M≠0
+cos⁻¹(min(1,max(⁻1,S/M)))→T
+round(S,8)→S
+round(T,8)→T
+ClrHome
+Output(1,1,"DOT PRODUCT")
+Output(2,1,"A DOT B=")
+Output(2,10,S)
+Output(3,1,"ANGLE BETWEEN A AND B:")
+Output(4,1,T)
 Pause 
 Goto M
 Lbl Q
