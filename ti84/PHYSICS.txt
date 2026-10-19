@@ -1,0 +1,590 @@
+Degree
+Float
+ClrHome
+Menu("UNITS FOR g","SI: 9.8 M/S²",S1,"US: 32.2 FT/S²",S2
+Lbl S1
+9.8→G
+Goto MA
+Lbl S2
+32.2→G
+Lbl MA
+ClrHome
+Menu("PHYSICS TOOLS","KINEMATICS",KN,"PROJECTILES",PJ,"FORCES",FO,"CIRCULAR MOTION",CI,"GRAVITY/ORBITS (SI)",GR,"UNIT CONVERT",UN,"QUIT",QQ
+Lbl KN
+Menu("KINEMATICS","CONSTANT ACCEL",K0,"AVG SPEED (LEGS)",AV,"BACK",MA
+Lbl K0
+0→J
+ClrHome
+Disp "X=DISPLACEMENT","V0=START VEL","V=END VEL","A=ACCEL, T=TIME","","USE ⁻ FOR LEFT/DOWN","(FALLING: A=⁻G)"
+Pause 
+Menu("YOU KNOW…","V0, A, T",C9,"V0, V, A",C7,"V0, V, T",C8,"X, V0, A",C2,"X, V0, V",C1,"X, V0, T",C3,"MORE…",KM
+Lbl KM
+Menu("YOU KNOW…","X, V, A",C4,"X, V, T",C5,"X, A, T",C6,"V, A, T",CA,"BACK",KN
+Lbl C9
+ClrHome
+Input "V0=",U
+Input "A=",A
+Input "T=",T
+U*T+A*T²/2→X
+U+A*T→V
+Goto KR
+Lbl C7
+ClrHome
+Input "V0=",U
+Input "V=",V
+Input "A=",A
+If A=0
+Goto ER
+(V-U)/A→T
+(V²-U²)/(2*A)→X
+Goto KR
+Lbl C8
+ClrHome
+Input "V0=",U
+Input "V=",V
+Input "T=",T
+If T=0
+Goto ER
+(V-U)/T→A
+(U+V)*T/2→X
+Goto KR
+Lbl C1
+ClrHome
+Input "X=",X
+Input "V0=",U
+Input "V=",V
+If X=0 or U+V=0
+Goto ER
+2*X/(U+V)→T
+(V²-U²)/(2*X)→A
+Goto KR
+Lbl C3
+ClrHome
+Input "X=",X
+Input "V0=",U
+Input "T=",T
+If T=0
+Goto ER
+2*(X-U*T)/T²→A
+U+A*T→V
+Goto KR
+Lbl C5
+ClrHome
+Input "X=",X
+Input "V=",V
+Input "T=",T
+If T=0
+Goto ER
+2*X/T-V→U
+(V-U)/T→A
+Goto KR
+Lbl C6
+ClrHome
+Input "X=",X
+Input "A=",A
+Input "T=",T
+If T=0
+Goto ER
+(X-A*T²/2)/T→U
+U+A*T→V
+Goto KR
+Lbl CA
+ClrHome
+Input "V=",V
+Input "A=",A
+Input "T=",T
+V-A*T→U
+V*T-A*T²/2→X
+Goto KR
+Lbl C2
+ClrHome
+Input "X=",X
+Input "V0=",U
+Input "A=",A
+A/2→P
+U→Q
+2→W
+Goto QD
+Lbl C4
+ClrHome
+Input "X=",X
+Input "V=",V
+Input "A=",A
+⁻A/2→P
+V→Q
+4→W
+Lbl QD
+⁻X→R
+0→J
+If P≠0
+Goto Q2
+If Q=0
+Goto ER
+⁻R/Q→T
+If T<0
+Goto NR
+Goto QF
+Lbl Q2
+Q²-4*P*R→D
+If D<0
+Goto NR
+(⁻Q+√(D))/(2*P)→S
+(⁻Q-√(D))/(2*P)→T
+If S>T
+Then
+S→Z
+T→S
+Z→T
+End
+If T<0
+Goto NR
+If S≥0 and S≠T
+Then
+T→Z
+S→T
+1→J
+End
+Lbl QF
+If W=2
+U+A*T→V
+If W=4
+V-A*T→U
+Lbl KR
+ClrHome
+Output(1,1,"CONSTANT ACCEL")
+If J=1
+Output(1,17,"(1 OF 2)")
+If J=2
+Output(1,17,"(2 OF 2)")
+Output(2,1,"X=")
+Output(2,5,X)
+Output(3,1,"V0=")
+Output(3,5,U)
+Output(4,1,"V=")
+Output(4,5,V)
+Output(5,1,"A=")
+Output(5,5,A)
+Output(6,1,"T=")
+Output(6,5,T)
+Pause 
+If J≠1
+Goto KN
+2→J
+Z→T
+Goto QF
+Lbl AV
+Menu("EACH LEG GIVEN AS","DISTANCE + SPEED",A1,"TIME + SPEED",A2,"BACK",KN
+Lbl A1
+1→W
+Goto A3
+Lbl A2
+2→W
+Lbl A3
+ClrHome
+0→N
+Repeat N≥1
+Input "NUMBER OF LEGS? ",N
+iPart(N)→N
+End
+0→D
+0→T
+For(K,1,N)
+Disp "LEG",K
+Input "SPEED=",V
+If W=1
+Then
+Input "DISTANCE=",X
+X/V→S
+Else
+Input "TIME=",S
+V*S→X
+End
+D+X→D
+T+S→T
+End
+ClrHome
+Output(1,1,"AVERAGE SPEED")
+Output(2,1,"DIST=")
+Output(2,11,D)
+Output(3,1,"TIME=")
+Output(3,11,T)
+Output(4,1,"AVG SPD=")
+Output(4,11,D/T)
+Output(6,1,"UNITS ARE WHATEVER YOU")
+Output(7,1,"TYPED (MI, H, MPH…)")
+Output(8,1,"AVG VELOCITY USES NET")
+Output(9,1,"DISPLACEMENT INSTEAD")
+Pause 
+Goto KN
+Lbl PJ
+Menu("PROJECTILES","FULL FLIGHT",P1,"AT A GIVEN X",P2,"SPEED FOR A RANGE",P3,"BACK",MA
+Lbl P1
+ClrHome
+Disp "LANDING HEIGHT IS","RELATIVE TO LAUNCH","(⁻ IF IT LANDS LOWER)"
+Input "V0=",U
+Input "ANGLE=",Q
+Input "LAND HT=",H
+U*cos(Q)→B
+U*sin(Q)→C
+C²-2*G*H→D
+If D<0
+Goto NR
+(C+√(D))/G→T
+B*T→R
+0→M
+If C>0
+C²/(2*G)→M
+C-G*T→E
+ClrHome
+Output(1,1,"FULL FLIGHT")
+Output(2,1,"VX=")
+Output(2,11,B)
+Output(3,1,"VY START=")
+Output(3,11,C)
+Output(4,1,"AIR TIME=")
+Output(4,11,T)
+Output(5,1,"RANGE=")
+Output(5,11,R)
+Output(6,1,"MAX HT=")
+Output(6,11,M)
+Output(7,1,"VY END=")
+Output(7,11,E)
+Output(8,1,"SPD END=")
+Output(8,11,√(B²+E²))
+Output(9,1,"ANG END=")
+Output(9,11,R►Pθ(B,E))
+Pause 
+Goto PJ
+Lbl P2
+ClrHome
+Input "V0=",U
+Input "ANGLE=",Q
+Input "X=",X
+U*cos(Q)→B
+U*sin(Q)→C
+If B=0
+Goto ER
+X/B→T
+C*T-G*T²/2→Y
+C-G*T→E
+ClrHome
+Output(1,1,"AT X=")
+Output(1,7,X)
+Output(2,1,"TIME=")
+Output(2,11,T)
+Output(3,1,"HEIGHT=")
+Output(3,11,Y)
+Output(4,1,"VX=")
+Output(4,11,B)
+Output(5,1,"VY=")
+Output(5,11,E)
+Output(6,1,"SPEED=")
+Output(6,11,√(B²+E²))
+If E>0
+Output(8,1,"STILL RISING")
+If E<0
+Output(8,1,"FALLING (PAST THE TOP)")
+If E=0
+Output(8,1,"EXACTLY AT THE TOP")
+Pause 
+Goto PJ
+Lbl P3
+ClrHome
+Disp "LEVEL GROUND ONLY"
+Input "RANGE=",R
+Input "ANGLE=",Q
+If R≤0 or sin(2*Q)≤0
+Goto ER
+√(R*G/sin(2*Q))→U
+ClrHome
+Output(1,1,"SPEED FOR A RANGE")
+Output(2,1,"V0=")
+Output(2,11,U)
+Output(3,1,"VX=")
+Output(3,11,U*cos(Q))
+Output(4,1,"VY START=")
+Output(4,11,U*sin(Q))
+Output(5,1,"AIR TIME=")
+Output(5,11,2*U*sin(Q)/G)
+Pause 
+Goto PJ
+Lbl FO
+Menu("FORCES","STOPPING FORCE",F1,"BLOCK ON INCLINE",F2,"ATWOOD (2 HANGING)",F3,"TABLE + HANGING",F4,"BACK",MA
+Lbl F1
+ClrHome
+Input "MASS=",M
+Input "SPEED=",V
+Input "STOP DIST=",D
+If D≤0
+Goto ER
+V²/(2*D)→A
+ClrHome
+Output(1,1,"STOPPING FORCE")
+Output(2,1,"DECEL=")
+Output(2,11,A)
+Output(3,1,"FORCE=")
+Output(3,11,M*A)
+Output(4,1,"IN G=")
+Output(4,11,A/G)
+Output(5,1,"STOP T=")
+Output(5,11,2*D/abs(V))
+Pause 
+Goto FO
+Lbl F2
+ClrHome
+Input "MASS=",M
+Input "ANGLE=",Q
+Input "μ STATIC=",S
+Input "μ KINETIC=",K
+M*G*cos(Q)→N
+M*G*sin(Q)→W
+ClrHome
+Output(1,1,"BLOCK ON INCLINE")
+Output(2,1,"NORMAL=")
+Output(2,11,N)
+Output(3,1,"DOWNHILL=")
+Output(3,11,W)
+Output(4,1,"MAX FS=")
+Output(4,11,S*N)
+If W≤S*N
+Then
+Output(6,1,"STAYS PUT")
+Output(7,1,"FRICTION=")
+Output(7,11,W)
+Else
+Output(6,1,"SLIDES DOWN")
+Output(7,1,"FRICTION=")
+Output(7,11,K*N)
+Output(8,1,"ACCEL=")
+Output(8,11,G*(sin(Q)-K*cos(Q)))
+End
+Pause 
+Goto FO
+Lbl F3
+ClrHome
+Input "M1=",A
+Input "M2=",B
+If A+B≤0
+Goto ER
+ClrHome
+Output(1,1,"ATWOOD MACHINE")
+Output(2,1,"ACCEL=")
+Output(2,11,(B-A)*G/(A+B))
+Output(3,1,"TENSION=")
+Output(3,11,2*A*B*G/(A+B))
+Output(5,1,"+ ACCEL MEANS M2 GOES")
+Output(6,1,"DOWN, ⁻ MEANS M1 DOES")
+Pause 
+Goto FO
+Lbl F4
+ClrHome
+Disp "M1 ON TABLE,","M2 HANGING OFF EDGE"
+Input "M1=",A
+Input "M2=",B
+Input "μ STATIC=",S
+Input "μ KINETIC=",K
+ClrHome
+Output(1,1,"TABLE + HANGING")
+If B≤S*A
+Then
+Output(3,1,"STAYS PUT")
+Output(4,1,"TENSION=")
+Output(4,11,B*G)
+Else
+G*(B-K*A)/(A+B)→E
+Output(3,1,"MOVES")
+Output(4,1,"ACCEL=")
+Output(4,11,E)
+Output(5,1,"TENSION=")
+Output(5,11,B*(G-E))
+End
+Pause 
+Goto FO
+Lbl CI
+Menu("CIRCULAR MOTION","UNIFORM CIRCLE",R1,"CONICAL PENDULUM",R2,"LOOP-THE-LOOP",R3,"BACK",MA
+Lbl R1
+Menu("YOU KNOW THE…","SPEED",V1,"PERIOD (S/LAP)",V2,"RPM",V3,"BACK",CI
+Lbl V1
+1→W
+Goto V4
+Lbl V2
+2→W
+Goto V4
+Lbl V3
+3→W
+Lbl V4
+ClrHome
+Input "RADIUS=",R
+Input "MASS=",M
+If W=1
+Input "SPEED=",V
+If W=2
+Input "PERIOD=",T
+If W=3
+Input "RPM=",T
+If R≤0
+Goto ER
+If W=3
+60/T→T
+If W≥2
+2*π*R/T→V
+If V=0
+Goto ER
+2*π*R/V→T
+ClrHome
+Output(1,1,"UNIFORM CIRCLE")
+Output(2,1,"SPEED=")
+Output(2,11,V)
+Output(3,1,"PERIOD=")
+Output(3,11,T)
+Output(4,1,"RPM=")
+Output(4,11,60/T)
+Output(5,1,"OMEGA=")
+Output(5,11,V/R)
+Output(6,1,"CENT ACC=")
+Output(6,11,V²/R)
+Output(7,1,"IN G=")
+Output(7,11,V²/(R*G))
+Output(8,1,"CENT F=")
+Output(8,11,M*V²/R)
+Pause 
+Goto CI
+Lbl R2
+ClrHome
+Disp "ANGLE IS FROM VERTICAL"
+Input "ROPE L=",L
+Input "ANGLE=",Q
+Input "MASS=",M
+If Q≤0 or Q≥90 or L≤0
+Goto ER
+L*sin(Q)→R
+√(G*R*tan(Q))→V
+ClrHome
+Output(1,1,"CONICAL PENDULUM")
+Output(2,1,"RADIUS=")
+Output(2,11,R)
+Output(3,1,"SPEED=")
+Output(3,11,V)
+Output(4,1,"PERIOD=")
+Output(4,11,2*π*R/V)
+Output(5,1,"TENSION=")
+Output(5,11,M*G/cos(Q))
+Output(7,1,"V=√(G L SINθ TANθ)")
+Output(8,1,"TANθ=V²/(R G)")
+Pause 
+Goto CI
+Lbl R3
+ClrHome
+Disp "FRICTIONLESS, FROM REST"
+Input "LOOP R=",R
+If R≤0
+Goto ER
+ClrHome
+Output(1,1,"LOOP-THE-LOOP")
+Output(2,1,"JUST STAYS ON (N=0):")
+Output(3,1,"V TOP=")
+Output(3,11,√(G*R))
+Output(4,1,"START HT=")
+Output(4,11,2.5*R)
+Output(5,1,"FEELS FULL WEIGHT:")
+Output(6,1,"V TOP=")
+Output(6,11,√(2*G*R))
+Output(7,1,"START HT=")
+Output(7,11,3*R)
+Output(8,1,"V BOTTOM=")
+Output(8,11,√(6*G*R))
+Pause 
+Goto CI
+Lbl GR
+Menu("GRAVITY (SI UNITS)","g FROM MASS+RADIUS",G1,"RADIUS FROM MASS+g",G2,"CIRCULAR ORBIT",G3,"BACK",MA
+Lbl G1
+ClrHome
+Input "MASS KG=",M
+Input "RADIUS M=",R
+If R≤0
+Goto ER
+6.674ᴇ⁻11*M/R²→E
+ClrHome
+Output(1,1,"SURFACE GRAVITY")
+Output(2,1,"g=")
+Output(2,11,E)
+Output(3,1,"X EARTH=")
+Output(3,11,E/9.8)
+Pause 
+Goto GR
+Lbl G2
+ClrHome
+Disp "TIP: 38% OF EARTH","IS g=.38*9.8"
+Input "MASS KG=",M
+Input "g=",E
+If E≤0
+Goto ER
+ClrHome
+Output(1,1,"PLANET RADIUS")
+Output(2,1,"R (M)=")
+Output(2,11,√(6.674ᴇ⁻11*M/E))
+Output(3,1,"R (KM)=")
+Output(3,11,√(6.674ᴇ⁻11*M/E)/1000)
+Pause 
+Goto GR
+Lbl G3
+ClrHome
+Input "PLANET MASS=",M
+Input "PLANET R=",R
+Input "ALTITUDE=",H
+R+H→D
+If D≤0 or M≤0
+Goto ER
+√(6.674ᴇ⁻11*M/D)→V
+2*π*D/V→T
+ClrHome
+Output(1,1,"CIRCULAR ORBIT")
+Output(2,1,"ORBIT R=")
+Output(2,11,D)
+Output(3,1,"SPEED=")
+Output(3,11,V)
+Output(4,1,"PERIOD S=")
+Output(4,11,T)
+Output(5,1,"PERIOD M=")
+Output(5,11,T/60)
+Output(6,1,"PERIOD H=")
+Output(6,11,T/3600)
+Pause 
+Goto GR
+Lbl UN
+Menu("UNIT CONVERT","MPH TO M/S",U1,"M/S TO MPH",U2,"FT TO M",U3,"M TO FT",U4,"MI TO KM",U5,"KM TO MI",U6,"BACK",MA
+Lbl U1
+.44704→F
+Goto UC
+Lbl U2
+1/.44704→F
+Goto UC
+Lbl U3
+.3048→F
+Goto UC
+Lbl U4
+1/.3048→F
+Goto UC
+Lbl U5
+1.609344→F
+Goto UC
+Lbl U6
+1/1.609344→F
+Lbl UC
+ClrHome
+Input "VALUE=",X
+Disp "CONVERTED:",X*F
+Pause 
+Goto UN
+Lbl ER
+ClrHome
+Disp "CANNOT SOLVE THAT:","IT WOULD DIVIDE BY","ZERO OR NEEDS A","DIFFERENT INPUT."
+Pause 
+Goto MA
+Lbl NR
+ClrHome
+Disp "NO REAL ANSWER:","IT NEVER REACHES","THAT POSITION."
+Pause 
+Goto MA
+Lbl QQ
+ClrHome
