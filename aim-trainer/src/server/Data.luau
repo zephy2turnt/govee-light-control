@@ -50,11 +50,10 @@ function Data.sanitizeSettings(raw: any): { [string]: any }
 			out[key] = math.clamp(v, limits[1], limits[2])
 		end
 	end
-	if type(raw.crosshairStyle) == "string" and table.find(Modes.CrosshairStyles, raw.crosshairStyle) then
-		out.crosshairStyle = raw.crosshairStyle
-	end
-	if type(raw.crosshairColor) == "number" and Modes.CrosshairColors[math.floor(raw.crosshairColor)] then
-		out.crosshairColor = math.floor(raw.crosshairColor)
+	for _, key in Modes.SettingToggles do
+		if type(raw[key]) == "boolean" then
+			out[key] = raw[key]
+		end
 	end
 	return out
 end

@@ -114,7 +114,7 @@ results = Results.new(root, {
 })
 
 local function applyCrosshair()
-	hud.crosshair:apply(Settings.get("crosshairStyle"), Settings.crosshairColor(), Settings.get("crosshairSize"))
+	hud.crosshair:apply(Settings.all())
 end
 Settings.onChanged(applyCrosshair)
 applyCrosshair()

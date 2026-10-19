@@ -49,8 +49,9 @@ function Settings.set(key: string, value: any)
 	apply()
 end
 
-function Settings.crosshairColor(): Color3
-	return Modes.CrosshairColors[current.crosshairColor] or Modes.CrosshairColors[1]
+-- A copy of every setting (used to draw the crosshair).
+function Settings.all(): { [string]: any }
+	return table.clone(current)
 end
 
 -- Called whenever any setting changes (e.g. to redraw the crosshair).

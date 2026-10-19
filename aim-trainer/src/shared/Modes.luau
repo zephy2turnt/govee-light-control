@@ -148,28 +148,53 @@ function Modes.validate(mode: Mode, stats: any): string?
 end
 
 -- Default per-player settings; the server validates saves against these.
+-- Crosshair sizes are in design pixels (the HUD scales with the screen).
 Modes.DefaultSettings = {
 	sensitivity = 0.15, -- degrees per mouse pixel
 	fov = 75,
-	crosshairStyle = "Cross", -- Dot | Cross | Circle
-	crosshairColor = 1, -- index into Modes.CrosshairColors
-	crosshairSize = 1,
 	volume = 0.7,
+
+	-- Crosshair
+	chR = 0, -- colour, 0-255 per channel
+	chG = 255,
+	chB = 140,
+	chLength = 7, -- length of each line
+	chThickness = 2,
+	chGap = 4, -- space between the centre and each line
+	chRotation = 0, -- degrees; 45 turns a + into an x
+	chDotSize = 3,
+	chHorizontal = true, -- show the left/right lines
+	chVertical = true, -- show the top/bottom lines
+	chDot = false, -- centre dot
+	chOutline = true, -- thin black outline for visibility
 }
-Modes.CrosshairStyles = { "Dot", "Cross", "Circle" }
-Modes.CrosshairColors = {
+
+-- Number settings and their allowed ranges.
+Modes.SettingLimits = {
+	sensitivity = { 0.02, 0.6 },
+	fov = { 60, 100 },
+	volume = { 0, 1 },
+	chR = { 0, 255 },
+	chG = { 0, 255 },
+	chB = { 0, 255 },
+	chLength = { 1, 24 },
+	chThickness = { 1, 8 },
+	chGap = { 0, 24 },
+	chRotation = { 0, 90 },
+	chDotSize = { 1, 10 },
+}
+
+-- On/off settings.
+Modes.SettingToggles = { "chHorizontal", "chVertical", "chDot", "chOutline" }
+
+-- Quick-pick colours in the settings panel.
+Modes.CrosshairPresets = {
 	Color3.fromRGB(0, 255, 140),
 	Color3.fromRGB(0, 220, 255),
 	Color3.fromRGB(255, 255, 255),
 	Color3.fromRGB(255, 60, 200),
 	Color3.fromRGB(255, 230, 0),
 	Color3.fromRGB(255, 70, 70),
-}
-Modes.SettingLimits = {
-	sensitivity = { 0.02, 0.6 },
-	fov = { 60, 100 },
-	crosshairSize = { 0.5, 2 },
-	volume = { 0, 1 },
 }
 
 return Modes

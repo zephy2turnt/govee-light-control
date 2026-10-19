@@ -1,6 +1,12 @@
--- SettingsPanel: sensitivity, FOV, crosshair (style/colour/size with a live
--- preview) and volume. Changes apply instantly; they're saved when the
--- panel closes.
+-- SettingsPanel: three columns.
+--
+--   GENERAL          sensitivity, field of view, volume
+--   CROSSHAIR SHAPE  horizontal / vertical / dot / outline toggles, then
+--                    length, thickness, gap, rotation and dot size
+--   CROSSHAIR COLOR  live preview, quick colours, R/G/B sliders
+--
+-- Every change applies instantly (including to the live preview); settings
+-- are saved to your profile when the panel closes.
 --
 -- Location: StarterPlayerScripts > Client > SettingsPanel (ModuleScript)
 
@@ -14,6 +20,7 @@ local Crosshair = require(script.Parent.Crosshair)
 
 local make = Ui.make
 local C = Ui.Color
+local LIMITS = Modes.SettingLimits
 
 local SettingsPanel = {}
 SettingsPanel.__index = SettingsPanel
@@ -22,18 +29,42 @@ export type SettingsPanel = typeof(setmetatable({} :: {
 	overlay: TextButton,
 	panel: CanvasGroup,
 	sliders: { [string]: Ui.Slider },
-	styleButtons: { [string]: Ui.Button },
-	swatches: { Frame },
+	toggles: { [string]: Ui.Button },
+	swatches: { TextButton },
 	preview: Crosshair.Crosshair,
 	onClosed: (() -> ())?,
 }, SettingsPanel))
 
-local LIMITS = Modes.SettingLimits
+local function column(parent: Instance, title: string, x: UDim, width: UDim, scrolling: boolean?): Frame
+	local holder = make("Frame", {
+		Position = UDim2.new(x, UDim.new(0, 76)),
+		Size = UDim2.new(width, UDim.new(1, -92)),
+		BackgroundTransparency = 1,
+		Parent = parent,
+	})
+	Ui.text({ Text = title, TextSize = 15, TextColor3 = C.Muted, Size = UDim2.new(1, 0, 0, 20), Parent = holder })
+	local list = make(if scrolling then "ScrollingFrame" else "Frame", {
+		Position = UDim2.fromOffset(0, 26),
+		Size = UDim2.new(1, 0, 1, -26),
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		Parent = holder,
+	}, { make("UIListLayout", { Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }) })
+	if scrolling then
+		local sf = list :: ScrollingFrame
+		sf.ScrollBarThickness = 5
+		sf.ScrollBarImageColor3 = C.Muted
+		sf.AutomaticCanvasSize = Enum.AutomaticSize.Y
+		sf.CanvasSize = UDim2.new()
+		make("UIPadding", { PaddingRight = UDim.new(0, 10), Parent = sf })
+	end
+	return list
+end
 
 function SettingsPanel.new(parent: Frame): SettingsPanel
 	local self = setmetatable({}, SettingsPanel) :: any
 	self.sliders = {}
-	self.styleButtons = {}
+	self.toggles = {}
 	self.swatches = {}
 
 	self.overlay = make("TextButton", {
@@ -51,7 +82,7 @@ function SettingsPanel.new(parent: Frame): SettingsPanel
 		self:close()
 	end)
 
-	local panel, body = Ui.panel({ Name = "Settings", Size = UDim2.fromOffset(640, 560), ZIndex = 21, Parent = parent })
+	local panel, body = Ui.panel({ Name = "Settings", Size = UDim2.fromOffset(920, 520), ZIndex = 21, Parent = parent })
 	self.panel = panel
 	Ui.text({ Text = "SETTINGS", TextSize = 32, FontFace = Ui.Font.Heavy, Position = UDim2.fromOffset(28, 18), Size = UDim2.fromOffset(300, 40), Parent = body })
 	Ui.button({
@@ -66,15 +97,11 @@ function SettingsPanel.new(parent: Frame): SettingsPanel
 		Parent = body,
 	})
 
-	-- Left column: sliders.
-	local left = make("Frame", {
-		Position = UDim2.fromOffset(28, 80),
-		Size = UDim2.new(0.55, -40, 1, -100),
-		BackgroundTransparency = 1,
-		Parent = body,
-	}, { make("UIListLayout", { Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder }) })
+	local general = column(body, "GENERAL", UDim.new(0, 28), UDim.new(0, 250))
+	local shape = column(body, "CROSSHAIR SHAPE", UDim.new(0, 306), UDim.new(0, 300), true)
+	local colour = column(body, "CROSSHAIR COLOR", UDim.new(0, 634), UDim.new(0, 258))
 
-	local function slider(key: string, label: string, order: number, step: number, format: (number) -> string)
+	local function slider(key: string, label: string, list: Instance, order: number, step: number, format: (number) -> string)
 		self.sliders[key] = Ui.slider({
 			Label = label,
 			Min = LIMITS[key][1],
@@ -86,92 +113,108 @@ function SettingsPanel.new(parent: Frame): SettingsPanel
 			OnChanged = function(v)
 				Settings.set(key, v)
 			end,
-			Parent = left,
+			Parent = list,
 		})
 	end
-	slider("sensitivity", "Sensitivity", 1, 0.005, function(v)
+	local function px(v: number): string
+		return string.format("%dpx", v)
+	end
+
+	-- General ----------------------------------------------------------------
+	slider("sensitivity", "Sensitivity", general, 1, 0.005, function(v)
 		return string.format("%.3f°/px", v)
 	end)
-	slider("fov", "Field of view", 2, 1, function(v)
+	slider("fov", "Field of view", general, 2, 1, function(v)
 		return string.format("%d°", v)
 	end)
-	slider("crosshairSize", "Crosshair size", 3, 0.05, function(v)
-		return string.format("%.2fx", v)
-	end)
-	slider("volume", "Volume", 4, 0.01, function(v)
+	slider("volume", "Volume", general, 3, 0.01, function(v)
 		return string.format("%d%%", math.floor(v * 100 + 0.5))
 	end)
 	Ui.text({
-		Text = "Tip: at 0.15°/px, sliding your mouse 2400 pixels turns you a full 360°.",
+		Text = "At 0.15°/px, moving your mouse 2400 pixels turns you a full 360°.",
 		TextSize = 14,
 		TextColor3 = C.Muted,
 		FontFace = Ui.Font.Body,
 		TextWrapped = true,
 		Size = UDim2.new(1, 0, 0, 40),
-		LayoutOrder = 5,
-		Parent = left,
+		LayoutOrder = 4,
+		Parent = general,
 	})
 
-	-- Right column: crosshair style, colour, preview.
-	local right = make("Frame", {
-		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.new(1, -28, 0, 80),
-		Size = UDim2.new(0.45, -20, 1, -100),
+	-- Shape ------------------------------------------------------------------
+	local toggleGrid = make("Frame", {
+		Size = UDim2.new(1, 0, 0, 92),
 		BackgroundTransparency = 1,
-		Parent = body,
+		LayoutOrder = 0,
+		Parent = shape,
+	}, {
+		make("UIGridLayout", {
+			CellSize = UDim2.new(0.5, -4, 0, 42),
+			CellPadding = UDim2.fromOffset(8, 8),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
 	})
-	Ui.text({ Text = "Crosshair", TextSize = 18, Size = UDim2.new(1, 0, 0, 24), Parent = right })
-	local styleRow = make("Frame", {
-		Position = UDim2.fromOffset(0, 30),
-		Size = UDim2.new(1, 0, 0, 44),
-		BackgroundTransparency = 1,
-		Parent = right,
-	}, { make("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, Padding = UDim.new(0, 8) }) })
-	for i, style in Modes.CrosshairStyles do
-		self.styleButtons[style] = Ui.button({
-			Text = style:upper(),
-			TextSize = 16,
+	for i, entry in { { "chHorizontal", "HORIZONTAL" }, { "chVertical", "VERTICAL" }, { "chDot", "DOT" }, { "chOutline", "OUTLINE" } } do
+		local key = entry[1]
+		self.toggles[key] = Ui.button({
+			Text = entry[2],
+			TextSize = 15,
 			Color = C.Raised,
 			TextColor3 = C.Text,
-			Size = UDim2.new(1 / 3, -6, 1, 0),
 			LayoutOrder = i,
 			OnClick = function()
-				Settings.set("crosshairStyle", style)
+				Settings.set(key, not Settings.get(key))
 			end,
-			Parent = styleRow,
+			Parent = toggleGrid,
 		})
 	end
+	slider("chLength", "Line length", shape, 1, 1, px)
+	slider("chThickness", "Line thickness", shape, 2, 1, px)
+	slider("chGap", "Gap from centre", shape, 3, 1, px)
+	slider("chRotation", "Rotation", shape, 4, 1, function(v)
+		return string.format("%d°", v)
+	end)
+	slider("chDotSize", "Dot size", shape, 5, 1, px)
+
+	-- Colour -----------------------------------------------------------------
+	local previewBox = make("Frame", {
+		Size = UDim2.new(1, 0, 0, 120),
+		BackgroundColor3 = Color3.fromRGB(32, 36, 50),
+		LayoutOrder = 0,
+		Parent = colour,
+	}, { Ui.corner(12), Ui.stroke(C.Line, 1.5) })
+	self.preview = Crosshair.new(previewBox)
 
 	local swatchRow = make("Frame", {
-		Position = UDim2.fromOffset(0, 88),
-		Size = UDim2.new(1, 0, 0, 36),
+		Size = UDim2.new(1, 0, 0, 34),
 		BackgroundTransparency = 1,
-		Parent = right,
+		LayoutOrder = 1,
+		Parent = colour,
 	}, { make("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, Padding = UDim.new(0, 8) }) })
-	for i, color in Modes.CrosshairColors do
+	for i, preset in Modes.CrosshairPresets do
 		local swatch = make("TextButton", {
 			Text = "",
 			AutoButtonColor = false,
-			Size = UDim2.fromOffset(36, 36),
-			BackgroundColor3 = color,
+			Size = UDim2.fromOffset(34, 34),
+			BackgroundColor3 = preset,
 			LayoutOrder = i,
 			Parent = swatchRow,
-		}, { Ui.corner(18), Ui.stroke(C.Bg, 3) })
+		}, { Ui.corner(17), Ui.stroke(C.Bg, 3) })
 		swatch.Activated:Connect(function()
 			Audio.play("Click")
 			Ui.pop(swatch, 0.2)
-			Settings.set("crosshairColor", i)
+			Settings.set("chR", math.floor(preset.R * 255 + 0.5))
+			Settings.set("chG", math.floor(preset.G * 255 + 0.5))
+			Settings.set("chB", math.floor(preset.B * 255 + 0.5))
 		end)
 		self.swatches[i] = swatch
 	end
-
-	local previewBox = make("Frame", {
-		Position = UDim2.fromOffset(0, 140),
-		Size = UDim2.new(1, 0, 0, 200),
-		BackgroundColor3 = Color3.fromRGB(24, 27, 38),
-		Parent = right,
-	}, { Ui.corner(12), Ui.stroke(C.Line, 1.5) })
-	self.preview = Crosshair.new(previewBox)
+	local function channel(v: number): string
+		return tostring(math.floor(v))
+	end
+	slider("chR", "Red", colour, 2, 1, channel)
+	slider("chG", "Green", colour, 3, 1, channel)
+	slider("chB", "Blue", colour, 4, 1, channel)
 
 	Settings.onChanged(function()
 		self:render()
@@ -182,19 +225,23 @@ end
 
 -- Syncs every control with the current settings.
 function SettingsPanel.render(self: SettingsPanel)
+	local all = Settings.all()
 	for key, s in self.sliders do
-		s:set(Settings.get(key))
+		s:set(all[key])
 	end
-	local style = Settings.get("crosshairStyle")
-	for name, button in self.styleButtons do
-		button:setColor(if name == style then C.Accent else C.Raised)
-		button.Label.TextColor3 = if name == style then C.Bg else C.Text
+	for key, button in self.toggles do
+		local on = all[key] == true
+		button:setColor(if on then C.Accent else C.Raised)
+		button.Label.TextColor3 = if on then C.Bg else C.Muted
 	end
+	local current = Color3.fromRGB(all.chR, all.chG, all.chB)
 	for i, swatch in self.swatches do
+		local preset = Modes.CrosshairPresets[i]
+		local same = math.abs(preset.R - current.R) + math.abs(preset.G - current.G) + math.abs(preset.B - current.B) < 0.01
 		local stroke = swatch:FindFirstChildOfClass("UIStroke") :: UIStroke
-		stroke.Color = if i == Settings.get("crosshairColor") then C.Text else C.Bg
+		stroke.Color = if same then C.Text else C.Bg
 	end
-	self.preview:apply(style, Settings.crosshairColor(), Settings.get("crosshairSize"))
+	self.preview:apply(all)
 end
 
 function SettingsPanel.isOpen(self: SettingsPanel): boolean

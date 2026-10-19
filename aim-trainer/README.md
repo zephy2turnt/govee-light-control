@@ -26,9 +26,14 @@ pay. Tracking scores the percentage of time on target, out of 10,000.
 
 ## Settings
 
-Sensitivity (degrees per pixel), field of view, crosshair style
-(dot / cross / circle), crosshair colour and size, and volume. Settings are
-saved to your profile.
+- **General:** sensitivity (degrees per pixel), field of view, volume.
+- **Crosshair shape:** horizontal lines, vertical lines, centre dot and black
+  outline (each on/off); line length, thickness, gap from the centre,
+  rotation (45° turns + into ×), and dot size.
+- **Crosshair color:** quick presets or any colour with R/G/B sliders.
+
+A live preview updates as you change things. Everything is saved to your
+profile.
 
 ## Saving and anti-cheat
 
