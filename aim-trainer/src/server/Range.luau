@@ -1,7 +1,7 @@
 -- Range: builds the shooting range from code.
 --
 -- One private booth per player, side by side. Each booth is a dark tunnel
--- with neon trim, a platform to stand on, and a target wall
+-- with neon trim, a raised platform to stand on, and a target wall
 -- Modes.TargetDistance studs ahead. Targets themselves are created on each
 -- player's own client, so nobody sees anyone else's targets.
 --
@@ -19,8 +19,11 @@ local Range = {}
 
 Range.BoothCount = 8
 local SPACING = 90
-local WALL_W, WALL_H = 64, 36
-local EYE_HEIGHT = 5
+local WALL_W, WALL_H = Modes.WallSize.X, Modes.WallSize.Y
+-- The player's eyes are level with the middle of the wall, so the whole wall
+-- sits above the floor. The player stands on a raised platform to get there.
+local EYE_HEIGHT = WALL_H / 2
+local PLATFORM_TOP = EYE_HEIGHT - 4.6
 local DARK = Color3.fromRGB(16, 18, 26)
 local PANEL = Color3.fromRGB(24, 27, 38)
 local NEON = Color3.fromRGB(0, 200, 255)
@@ -73,8 +76,8 @@ local function buildBooth(index: number, parent: Instance): Model
 	part({ Name = "Floor", Size = Vector3.new(WALL_W + 4, 1, d + 16), CFrame = at(0, -0.5, wallZ / 2 + 6), Color = DARK, Parent = model })
 	part({
 		Name = "Platform",
-		Size = Vector3.new(10, 0.4, 10),
-		CFrame = at(0, 0.2, 0),
+		Size = Vector3.new(10, PLATFORM_TOP, 10),
+		CFrame = at(0, PLATFORM_TOP / 2, 0),
 		Color = PANEL,
 		Material = Enum.Material.Metal,
 		Parent = model,
@@ -186,7 +189,7 @@ local function buildBooth(index: number, parent: Instance): Model
 	sign.Parent = signPart
 
 	model:SetAttribute("EyeCFrame", at(0, EYE_HEIGHT, 0))
-	model:SetAttribute("StandCFrame", at(0, 3.2, 0))
+	model:SetAttribute("StandCFrame", at(0, PLATFORM_TOP + 2.8, 0))
 	model.Parent = parent
 	return model
 end

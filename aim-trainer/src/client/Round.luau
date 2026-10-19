@@ -83,8 +83,16 @@ end
 
 -- Targets ------------------------------------------------------------------------
 
+-- Keeps a target's whole sphere on the wall, whatever the mode's area says.
+local function onWall(pos: Vector2, radius: number): Vector2
+	local halfW = Modes.WallSize.X / 2 - radius - 0.5
+	local halfH = Modes.WallSize.Y / 2 - radius - 0.5
+	return Vector2.new(math.clamp(pos.X, -halfW, halfW), math.clamp(pos.Y, -halfH, halfH))
+end
+
 local function makeTarget(self: Round, localPos: Vector2): Part
 	local r = self.mode.radius
+	localPos = onWall(localPos, r)
 	local part = Instance.new("Part")
 	part.Name = "Target"
 	part.Shape = Enum.PartType.Ball
@@ -196,8 +204,9 @@ local function stepTracking(self: Round, dt: number)
 	end
 	self.trackX = math.clamp(self.trackX + self.trackVelocity * dt, -half - 0.5, half + 0.5)
 	local y = math.sin(now * 1.7) * mode.area.Y * 0.3
+	local pos = onWall(Vector2.new(self.trackX, y), mode.radius)
 	for part in self.targets do
-		part.CFrame = self.plane * CFrame.new(self.trackX, y, 0)
+		part.CFrame = self.plane * CFrame.new(pos.X, pos.Y, 0)
 	end
 
 	local camera = Workspace.CurrentCamera

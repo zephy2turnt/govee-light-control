@@ -25,6 +25,9 @@ export type Mode = {
 
 -- Targets sit on a plane this far in front of the player's eyes.
 Modes.TargetDistance = 50
+-- Size of the target wall in studs. It is centred on the player's eyes, and
+-- no target is ever placed past its edges.
+Modes.WallSize = Vector2.new(64, 36)
 Modes.Countdown = 3
 
 Modes.order = { "Gridshot", "Flick", "Microshot", "Tracking" }
