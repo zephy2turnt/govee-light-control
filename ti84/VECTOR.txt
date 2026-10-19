@@ -1,0 +1,151 @@
+Degree
+Float
+Lbl M
+ClrHome
+Menu("VECTOR TOOLS","ADD VECTORS",A,"SUBTRACT A-B",S,"SPLIT TO X,Y,Z",C,"X,Y,Z TO MAG/DIR",P,"QUIT",Q
+Lbl A
+1→O
+Goto D
+Lbl S
+2→O
+Goto D
+Lbl C
+3→O
+Goto D
+Lbl P
+4→O
+Lbl D
+Menu("DIMENSION","2D (X,Y)",D2,"3D (X,Y,Z)",D3
+Lbl D2
+2→D
+Goto F
+Lbl D3
+3→D
+Lbl F
+1→N
+If O=3
+Goto G
+If O=4
+Goto H
+2→N
+If O=2
+Goto J
+ClrHome
+Repeat N≥2
+Input "HOW MANY VECTORS? ",N
+iPart(N)→N
+End
+Lbl J
+Menu("ENTER VECTORS AS","MAG + ANGLE(S)",G,"COMPONENTS",H
+Lbl G
+1→F
+Goto L
+Lbl H
+2→F
+Lbl L
+0→X
+0→Y
+0→Z
+For(K,1,N)
+ClrHome
+If O=1
+Disp "VECTOR",K
+If O=2 and K=1
+Disp "VECTOR A"
+If O=2 and K=2
+Disp "VECTOR B (SUBTRACTED)"
+If O≥3
+Disp "ENTER VECTOR"
+0→W
+If F=1
+Then
+Input "MAG=",M
+If D=2
+Then
+Input "ANGLE=",T
+M*cos(T)→U
+M*sin(T)→V
+Else
+Disp "θ: IN XY-PLANE FROM +X","Φ: DOWN FROM +Z AXIS"
+Input "θ=",T
+Input "Φ=",P
+M*sin(P)*cos(T)→U
+M*sin(P)*sin(T)→V
+M*cos(P)→W
+End
+Else
+Input "X=",U
+Input "Y=",V
+If D=3
+Input "Z=",W
+End
+If O=2 and K=2
+Then
+⁻U→U
+⁻V→V
+⁻W→W
+End
+X+U→X
+Y+V→Y
+Z+W→Z
+End
+round(X,8)→X
+round(Y,8)→Y
+round(Z,8)→Z
+√(X²+Y²+Z²)→M
+0→T
+0→P
+0→A
+0→B
+If X≠0 or Y≠0
+R►Pθ(X,Y)→T
+If T<0
+T+360→T
+If M≠0
+Then
+cos⁻¹(min(1,max(⁻1,Z/M)))→P
+cos⁻¹(min(1,max(⁻1,X/M)))→A
+cos⁻¹(min(1,max(⁻1,Y/M)))→B
+End
+round(M,8)→M
+round(T,8)→T
+round(P,8)→P
+round(A,8)→A
+round(B,8)→B
+ClrHome
+If O=1
+Output(1,1,"RESULTANT (SUM)")
+If O=2
+Output(1,1,"RESULT A-B")
+If O=3
+Output(1,1,"COMPONENTS")
+If O=4
+Output(1,1,"MAGNITUDE + DIRECTION")
+Output(2,1,"X=")
+Output(2,9,X)
+Output(3,1,"Y=")
+Output(3,9,Y)
+If D=2
+Then
+Output(4,1,"MAG=")
+Output(4,9,M)
+Output(5,1,"ANGLE=")
+Output(5,9,T)
+Else
+Output(4,1,"Z=")
+Output(4,9,Z)
+Output(5,1,"MAG=")
+Output(5,9,M)
+Output(6,1,"θ=")
+Output(6,9,T)
+Output(7,1,"Φ=")
+Output(7,9,P)
+Output(8,1,"ANG +X=")
+Output(8,9,A)
+Output(9,1,"ANG +Y=")
+Output(9,9,B)
+End
+Pause 
+Goto M
+Lbl Q
+ClrHome
