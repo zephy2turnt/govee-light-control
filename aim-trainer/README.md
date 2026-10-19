@@ -13,6 +13,19 @@ bests and global top-10 leaderboards are saved per mode.
 | **Microshot** | precision | 1 tiny target in a small area, 60s. |
 | **Tracking** | smoothness | keep your crosshair on a strafing target, 45s. No clicking. |
 
+Every mode comes in **Easy**, **Medium** and **Hard** (pick it on the menu
+before pressing PLAY). Each difficulty has its own personal best and its own
+global leaderboard.
+
+| Mode | Easy | Medium | Hard |
+|---|---|---|---|
+| Gridshot | big targets, 4×4 grid | 5×5 grid | small targets, 6×6 grid |
+| Flick | big targets, close together | normal | small targets, whole wall |
+| Microshot | slightly bigger | tiny | tinier, spread wider |
+| Tracking | big and slow | normal | small, fast, wide strafes |
+
+The exact numbers are in `Modes.luau` (the `tuning` table).
+
 **Scoring:** click modes give 100 per hit × your accuracy, so spamming doesn't
 pay. Tracking scores the percentage of time on target, out of 10,000.
 

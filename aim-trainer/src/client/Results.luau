@@ -1,7 +1,7 @@
 -- Results: the end-of-round screen.
 --
 -- Score counts up, a NEW BEST badge pops if you beat your record, and the
--- round's stats are laid out underneath. RETRY replays the same mode.
+-- round's stats are laid out underneath. RETRY replays the same mode and difficulty.
 --
 -- Location: StarterPlayerScripts > Client > Results (ModuleScript)
 
@@ -131,7 +131,7 @@ end
 function Results.show(self: Results, mode: Modes.Mode, stats: Modes.Stats, result: any)
 	local score = Modes.score(mode, stats)
 	local accuracy = Modes.accuracy(mode, stats)
-	self.modeName.Text = mode.name
+	self.modeName.Text = mode.fullName
 	self.modeName.TextColor3 = mode.color
 	self.score.Text = "0"
 	self.badge.Visible = false

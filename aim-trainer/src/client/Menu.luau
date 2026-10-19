@@ -1,4 +1,5 @@
--- Menu: pick a mode, see your best, see the global top 10, press PLAY.
+-- Menu: pick a mode and a difficulty, see your best and the global top 10,
+-- press PLAY.
 --
 -- Location: StarterPlayerScripts > Client > Menu (ModuleScript)
 
@@ -21,7 +22,9 @@ export type Callbacks = { onPlay: (modeId: string) -> (), onSettings: () -> () }
 export type Menu = typeof(setmetatable({} :: {
 	root: CanvasGroup,
 	cards: { [string]: { frame: TextButton, best: TextLabel, stroke: UIStroke } },
-	selected: string,
+	selected: string, -- mode (without difficulty), e.g. "Flick"
+	difficulty: string, -- "Easy" | "Medium" | "Hard"
+	difficultyButtons: { [string]: Ui.Button },
 	bests: { [string]: any },
 	detailName: TextLabel,
 	detailInfo: TextLabel,
@@ -29,6 +32,7 @@ export type Menu = typeof(setmetatable({} :: {
 	detailBest: TextLabel,
 	play: Ui.Button,
 	board: Frame,
+	boardTitle: TextLabel,
 	boardStatus: TextLabel,
 	boardRequest: number,
 }, Menu))
@@ -50,6 +54,8 @@ function Menu.new(parent: Frame, callbacks: Callbacks): Menu
 	local self = setmetatable({}, Menu) :: any
 	self.cards = {}
 	self.selected = Modes.order[1]
+	self.difficulty = "Medium"
+	self.difficultyButtons = {}
 	self.bests = {}
 	self.boardRequest = 0
 
@@ -176,11 +182,11 @@ function Menu.new(parent: Frame, callbacks: Callbacks): Menu
 	local detail = make("Frame", {
 		Name = "Detail",
 		Position = UDim2.fromOffset(632, 150),
-		Size = UDim2.new(1, -680, 0, 440),
+		Size = UDim2.new(1, -680, 0, 480),
 		BackgroundColor3 = C.Panel,
 		BackgroundTransparency = 0.05,
 		Parent = self.root,
-	}, { Ui.corner(16), Ui.stroke(C.Line, 2), make("UISizeConstraint", { MaxSize = Vector2.new(600, 440) }) })
+	}, { Ui.corner(16), Ui.stroke(C.Line, 2), make("UISizeConstraint", { MaxSize = Vector2.new(600, 480) }) })
 	self.detailName = Ui.text({ TextSize = 40, FontFace = Ui.Font.Heavy, Position = UDim2.fromOffset(24, 18), Size = UDim2.new(1, -48, 0, 46), Parent = detail })
 	self.detailInfo = Ui.text({ TextSize = 17, TextColor3 = C.Muted, Position = UDim2.fromOffset(26, 64), Size = UDim2.new(1, -48, 0, 22), Parent = detail })
 	self.detailDesc = Ui.text({
@@ -192,7 +198,31 @@ function Menu.new(parent: Frame, callbacks: Callbacks): Menu
 		Size = UDim2.new(1, -52, 0, 44),
 		Parent = detail,
 	})
-	self.detailBest = Ui.text({ TextSize = 18, TextColor3 = C.Gold, Position = UDim2.fromOffset(26, 138), Size = UDim2.new(0.5, 0, 0, 24), Parent = detail })
+
+	-- Difficulty picker.
+	local difficultyRow = make("Frame", {
+		Position = UDim2.fromOffset(24, 140),
+		Size = UDim2.fromOffset(300, 36),
+		BackgroundTransparency = 1,
+		Parent = detail,
+	}, { make("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder }) })
+	for i, difficulty in Modes.difficulties do
+		self.difficultyButtons[difficulty] = Ui.button({
+			Text = difficulty:upper(),
+			TextSize = 15,
+			Color = C.Raised,
+			TextColor3 = C.Muted,
+			Size = UDim2.fromOffset(92, 36),
+			LayoutOrder = i,
+			OnClick = function()
+				self.difficulty = difficulty
+				self:select(self.selected)
+			end,
+			Parent = difficultyRow,
+		})
+	end
+
+	self.detailBest = Ui.text({ TextSize = 18, TextColor3 = C.Gold, Position = UDim2.fromOffset(26, 186), Size = UDim2.new(1, -52, 0, 24), Parent = detail })
 	self.play = Ui.button({
 		Text = "PLAY",
 		TextSize = 30,
@@ -200,16 +230,16 @@ function Menu.new(parent: Frame, callbacks: Callbacks): Menu
 		AnchorPoint = Vector2.new(1, 0),
 		Position = UDim2.new(1, -24, 0, 100),
 		OnClick = function()
-			callbacks.onPlay(self.selected)
+			callbacks.onPlay(self:selectedId())
 		end,
 		Parent = detail,
 	})
 
-	Ui.text({ Text = "GLOBAL TOP 10", TextSize = 16, TextColor3 = C.Muted, Position = UDim2.fromOffset(26, 180), Size = UDim2.new(1, -52, 0, 20), Parent = detail })
+	self.boardTitle = Ui.text({ Text = "GLOBAL TOP 10", TextSize = 16, TextColor3 = C.Muted, Position = UDim2.fromOffset(26, 220), Size = UDim2.new(1, -52, 0, 20), Parent = detail })
 	self.board = make("Frame", {
 		Name = "Board",
-		Position = UDim2.fromOffset(20, 206),
-		Size = UDim2.new(1, -40, 1, -220),
+		Position = UDim2.fromOffset(20, 246),
+		Size = UDim2.new(1, -40, 1, -256),
 		BackgroundTransparency = 1,
 		Parent = detail,
 	}, { make("UIListLayout", { Padding = UDim.new(0, 2), SortOrder = Enum.SortOrder.LayoutOrder }) })
@@ -217,7 +247,7 @@ function Menu.new(parent: Frame, callbacks: Callbacks): Menu
 		TextSize = 16,
 		TextColor3 = C.Muted,
 		FontFace = Ui.Font.Body,
-		Position = UDim2.fromOffset(26, 210),
+		Position = UDim2.fromOffset(26, 250),
 		Size = UDim2.new(1, -52, 0, 22),
 		Parent = detail,
 	})
@@ -237,27 +267,38 @@ function Menu.new(parent: Frame, callbacks: Callbacks): Menu
 	return self
 end
 
+-- The mode + difficulty that PLAY will start, e.g. "Flick_Hard".
+function Menu.selectedId(self: Menu): string
+	return Modes.id(self.selected, self.difficulty)
+end
+
 function Menu.setBests(self: Menu, bests: { [string]: any })
 	self.bests = bests or {}
-	for id, card in self.cards do
-		local best = self.bests[id]
-		card.best.Text = if best then "BEST  " .. formatScore(best.score) else "No score yet"
-		card.best.TextColor3 = if best then C.Gold else C.Muted
-	end
 	self:select(self.selected)
 end
 
-function Menu.select(self: Menu, id: string)
-	self.selected = id
+function Menu.select(self: Menu, baseId: string)
+	self.selected = baseId
+	local id = self:selectedId()
 	local mode = Modes.list[id]
 	for cardId, card in self.cards do
-		card.stroke.Color = if cardId == id then Modes.list[cardId].color else C.Line
-		card.stroke.Thickness = if cardId == id then 3 else 2
+		card.stroke.Color = if cardId == baseId then Modes.list[cardId].color else C.Line
+		card.stroke.Thickness = if cardId == baseId then 3 else 2
+		-- Cards show your best at the difficulty you have picked.
+		local cardBest = self.bests[Modes.id(cardId, self.difficulty)]
+		card.best.Text = if cardBest then "BEST  " .. formatScore(cardBest.score) else "No score yet"
+		card.best.TextColor3 = if cardBest then C.Gold else C.Muted
+	end
+	for difficulty, button in self.difficultyButtons do
+		local on = difficulty == self.difficulty
+		button:setColor(if on then Modes.DifficultyColor[difficulty] else C.Raised)
+		button.Label.TextColor3 = if on then C.Bg else C.Muted
 	end
 	self.detailName.Text = mode.name
 	self.detailName.TextColor3 = mode.color
 	self.detailInfo.Text = infoLine(mode)
 	self.detailDesc.Text = mode.description
+	self.boardTitle.Text = "GLOBAL TOP 10  ·  " .. self.difficulty:upper()
 	local best = self.bests[id]
 	self.detailBest.Text = if best then string.format("Your best: %s  (%d%%)", formatScore(best.score), math.floor(best.accuracy * 100 + 0.5)) else "Your best: -"
 	self.play:setColor(mode.color)
@@ -269,7 +310,7 @@ end
 function Menu.refreshBoard(self: Menu)
 	self.boardRequest += 1
 	local request = self.boardRequest
-	local id = self.selected
+	local id = self:selectedId()
 	for _, child in self.board:GetChildren() do
 		if child:IsA("Frame") then
 			child:Destroy()

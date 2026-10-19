@@ -27,7 +27,7 @@ local boards: { [string]: OrderedDataStore } = {}
 do
 	local ok, err = pcall(function()
 		profileStore = DataStoreService:GetDataStore("AimRange_Profiles_" .. VERSION)
-		for _, id in Modes.order do
+		for id in Modes.list do
 			boards[id] = DataStoreService:GetOrderedDataStore("AimRange_LB_" .. VERSION .. "_" .. id)
 		end
 	end)

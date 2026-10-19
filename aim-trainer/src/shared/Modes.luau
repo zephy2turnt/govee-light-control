@@ -8,8 +8,11 @@
 local Modes = {}
 
 export type Mode = {
-	id: string,
+	id: string, -- unique per mode and difficulty, e.g. "Flick_Hard"
+	base: string, -- the mode without difficulty, e.g. "Flick"
+	difficulty: string, -- "Easy" | "Medium" | "Hard"
 	name: string,
+	fullName: string, -- e.g. "FLICK  ·  HARD"
 	tagline: string,
 	description: string,
 	kind: "grid" | "random" | "track",
@@ -30,11 +33,11 @@ Modes.TargetDistance = 50
 Modes.WallSize = Vector2.new(64, 36)
 Modes.Countdown = 3
 
+-- The four modes, in menu order (each comes in three difficulties).
 Modes.order = { "Gridshot", "Flick", "Microshot", "Tracking" }
 
-Modes.list = {
+local base = {
 	Gridshot = {
-		id = "Gridshot",
 		name = "GRIDSHOT",
 		tagline = "Speed",
 		description = "Three targets on a grid. Clear them as fast as you can.",
@@ -48,7 +51,6 @@ Modes.list = {
 		color = Color3.fromRGB(0, 220, 255),
 	},
 	Flick = {
-		id = "Flick",
 		name = "FLICK",
 		tagline = "Reaction",
 		description = "One target anywhere on the wall. Snap to it.",
@@ -61,7 +63,6 @@ Modes.list = {
 		color = Color3.fromRGB(255, 170, 40),
 	},
 	Microshot = {
-		id = "Microshot",
 		name = "MICROSHOT",
 		tagline = "Precision",
 		description = "Tiny targets close together. Small, careful adjustments.",
@@ -74,7 +75,6 @@ Modes.list = {
 		color = Color3.fromRGB(190, 110, 255),
 	},
 	Tracking = {
-		id = "Tracking",
 		name = "TRACKING",
 		tagline = "Smoothness",
 		description = "Keep your crosshair on a strafing target. No clicking.",
@@ -87,7 +87,61 @@ Modes.list = {
 		maxHitsPerSecond = 0,
 		color = Color3.fromRGB(80, 255, 140),
 	},
-} :: { [string]: Mode }
+}
+
+-- Easy / Medium / Hard. Each difficulty only changes the numbers listed;
+-- everything else comes from the mode above (Medium is the mode as written).
+Modes.difficulties = { "Easy", "Medium", "Hard" }
+Modes.DifficultyColor = {
+	Easy = Color3.fromRGB(80, 230, 120),
+	Medium = Color3.fromRGB(255, 200, 40),
+	Hard = Color3.fromRGB(255, 70, 70),
+}
+
+local tuning: { [string]: { [string]: { [string]: any } } } = {
+	Gridshot = {
+		Easy = { radius = 1.9, grid = 4, area = Vector2.new(18, 18), maxHitsPerSecond = 10 },
+		Medium = {},
+		Hard = { radius = 1.1, grid = 6, area = Vector2.new(30, 26) },
+	},
+	Flick = {
+		Easy = { radius = 1.8, area = Vector2.new(32, 16) },
+		Medium = {},
+		Hard = { radius = 0.9, area = Vector2.new(56, 28) },
+	},
+	Microshot = {
+		Easy = { radius = 0.8, area = Vector2.new(12, 7) },
+		Medium = {},
+		Hard = { radius = 0.4, area = Vector2.new(18, 10) },
+	},
+	Tracking = {
+		Easy = { radius = 1.9, speed = 10, area = Vector2.new(30, 8) },
+		Medium = {},
+		Hard = { radius = 1.0, speed = 21, area = Vector2.new(44, 14) },
+	},
+}
+
+-- Id of a mode at a difficulty: "Flick_Easy", "Flick", "Flick_Hard". Medium
+-- keeps the plain name so scores saved before difficulties existed still count.
+function Modes.id(baseId: string, difficulty: string): string
+	return if difficulty == "Medium" then baseId else baseId .. "_" .. difficulty
+end
+
+-- Every playable mode, keyed by id (12 in all: 4 modes x 3 difficulties).
+Modes.list = {} :: { [string]: Mode }
+for baseId, def in base do
+	for _, difficulty in Modes.difficulties do
+		local mode = table.clone(def) :: any
+		for key, value in tuning[baseId][difficulty] do
+			mode[key] = value
+		end
+		mode.id = Modes.id(baseId, difficulty)
+		mode.base = baseId
+		mode.difficulty = difficulty
+		mode.fullName = def.name .. "  ·  " .. difficulty:upper()
+		Modes.list[mode.id] = mode :: Mode
+	end
+end
 
 export type Stats = {
 	hits: number,
