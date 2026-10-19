@@ -11,6 +11,10 @@ A TI-BASIC program that adds, subtracts, dots and crosses vectors and splits the
 To type it in by hand, use `VECTOR.txt` (`→` is the `sto→` key, `⁻` is the `(-)` negative key).
 After editing `VECTOR.txt`, rebuild with `pip install tivars && python3 build.py`.
 
+`python3 test_vector.py` runs the built `.8xp` through `ti_sim.py`, a small simulator for the TI-BASIC
+commands this program uses, and checks every menu option against answers worked out in Python.
+It's a stand-in for a real calculator, not a full emulator.
+
 ## Menu
 
 | Option | What it does |
