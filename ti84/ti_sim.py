@@ -91,7 +91,8 @@ class Sim:
         e += ")" * opens
         reps = [
             ("cos⁻¹(", "_acos("), ("sin⁻¹(", "_asin("),
-            ("cos(", "_cos("), ("sin(", "_sin("),
+            ("tan⁻¹(", "_atan("), ("tan(", "_tan("), ("abs(", "abs("), ("not(", "not ("),
+            ("cos(", "_cos("), ("sin(", "_sin("), ("π", "_pi"), ("ᴇ", "e"),
             ("√(", "_sqrt("), ("R►Pθ(", "_rpt("), ("R►Pr(", "_rpr("),
             ("iPart(", "_ipart("), ("round(", "_round("),
             ("min(", "_min("), ("max(", "_max("),
@@ -112,6 +113,9 @@ class Sim:
             "_sin": lambda x: math.sin(math.radians(x)),
             "_acos": lambda x: self._dom(-1 <= x <= 1, d(math.acos(x)) if -1 <= x <= 1 else 0),
             "_asin": lambda x: d(math.asin(x)),
+            "_tan": lambda x: math.tan(math.radians(x)),
+            "_atan": lambda x: d(math.atan(x)),
+            "_pi": math.pi, "abs": abs,
             "_sqrt": lambda x: self._dom(x >= 0, math.sqrt(x) if x >= 0 else 0),
             "_rpt": lambda x, y: d(math.atan2(y, x)),
             "_rpr": lambda x, y: math.hypot(x, y),
