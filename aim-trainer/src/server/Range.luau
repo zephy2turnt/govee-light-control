@@ -43,8 +43,8 @@ end
 local function setupLighting()
 	Lighting.ClockTime = 0
 	Lighting.Brightness = 1
-	Lighting.Ambient = Color3.fromRGB(40, 44, 58)
-	Lighting.OutdoorAmbient = Color3.fromRGB(40, 44, 58)
+	Lighting.Ambient = Color3.fromRGB(58, 62, 78)
+	Lighting.OutdoorAmbient = Color3.fromRGB(58, 62, 78)
 	Lighting.EnvironmentDiffuseScale = 0.3
 	Lighting.EnvironmentSpecularScale = 0.6
 	Lighting.GlobalShadows = true
@@ -146,24 +146,6 @@ local function buildBooth(index: number, parent: Instance): Model
 		Color = DARK,
 		Parent = model,
 	})
-
-	-- Soft light washing over the target wall.
-	local lamp = part({
-		Name = "WallLight",
-		Size = Vector3.new(1, 1, 1),
-		CFrame = at(0, EYE_HEIGHT + 8, wallZ + 18),
-		Transparency = 1,
-		CanCollide = false,
-		Parent = model,
-	})
-	local light = Instance.new("SpotLight")
-	light.Face = Enum.NormalId.Front
-	light.Angle = 110
-	light.Range = 40
-	light.Brightness = 1.2
-	light.Color = Color3.fromRGB(190, 220, 255)
-	light.Parent = lamp
-	lamp.CFrame = CFrame.lookAt(lamp.Position, wallCF.Position)
 
 	-- Number above the wall so players can tell booths apart.
 	local sign = Instance.new("SurfaceGui")
